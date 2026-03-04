@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Breast Cancer Prediction (XAI)</title>
+    <style>body {
+    font-family: Arial;
+    background-color: #f4f6f9;
+}
+
+.card {
+    background: white;
+    padding: 20px;
+    margin: 20px;
+    border-radius: 10px;
+    box-shadow: 0px 4px 10px rgba(0,0,0,0.1);
+}
+
+h2, h3 {
+    color: #2c3e50;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+th {
+    background-color: #34495e;
+    color: white;
+}
+
+td, th {
+    padding: 8px;
+    text-align: center;
+}
+</style>
+</head>
+<body>
+    <h2>Enter Medical Features</h2>
+
+    <form method="POST">
+        {% for feature in [
+        "Clump Thickness",
+        "Uniformity of Cell Size",
+        "Uniformity of Cell Shape",
+        "Marginal Adhesion",
+        "Single Epithelial Cell Size",
+        "Bare Nuclei",
+        "Bland Chromatin",
+        "Normal Nucleoli",
+        "Mitoses"] %}
+
+        <label>{{ feature }}</label>
+        <input type="number" step="any" name="{{ feature }}" required><br><br>
+
+        {% endfor %}
+
+        <button type="submit">Predict</button>
+    </form>
+
+{% if prediction %}
+
+<div class="card">
+    <h2>Diagnosis Result</h2>
+    <h3>{{ prediction }}</h3>
+    <p><strong>Probability:</strong> {{ probability*100 }}%</p>
+    <p><strong>Risk Level:</strong> {{ risk_level }}</p>
+</div>
+
+<div class="card">
+    <h3>Top Risk Increasing Features</h3>
+    <ul>
+        {% for item in top_positive %}
+        <li>{{ item.Feature }} ({{ item["SHAP Value"] | round(3) }})</li>
+        {% endfor %}
+    </ul>
+</div>
+
+<div class="card">
+    <h3>Top Protective Features</h3>
+    <ul>
+        {% for item in top_negative %}
+        <li>{{ item.Feature }} ({{ item["SHAP Value"] | round(3) }})</li>
+        {% endfor %}
+    </ul>
+</div>
+
+<div class="card">
+    <h3>Feature Contribution Breakdown</h3>
+    <table border="1">
+        <tr>
+            <th>Feature</th>
+            <th>SHAP Value</th>
+            <th>Direction</th>
+        </tr>
+        {% for item in contributions %}
+        <tr>
+            <td>{{ item.Feature }}</td>
+            <td>{{ item["SHAP Value"] | round(3) }}</td>
+            <td>{{ item.Direction }}</td>
+        </tr>
+        {% endfor %}
+    </table>
+</div>
+
+{% endif %}
+
+
+</body>
+</html>
